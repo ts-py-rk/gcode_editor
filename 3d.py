@@ -10,7 +10,7 @@ logging.basicConfig(
 
 
 class Pararam:
-    logging.info('class Pararam():')
+    logging.info('class Pararam:')
     text: str
     code: str
     start: int
@@ -28,6 +28,7 @@ class Pararam:
         ['Ускорения и торможения', 'SET_VELOCITY_LIMIT ACCEL_TO_DECEL='],
         ['Pressure advance', 'pressure_advance K='],
     ]
+    len = len(params)
 
     def __init__(self, text, code, start=None, stop=None) -> None:
         self.text = text
@@ -38,7 +39,7 @@ class Pararam:
 
 
 class Layer:
-    logging.info(f'class Layer():')
+    logging.info(f'class Layer:')
     start: int
     stop: int
 
@@ -48,14 +49,13 @@ class Layer:
 
 
 class Lines:
-    logging.info(f'class Layer():')
+    logging.info(f'class Lines:')
     text: str
     code: str
     _lines: List['Lines'] = []
     lines: List[List[str]] = [
         [f'Периметры', 'Perimeter'],
         [f'Внешние периметры', 'ExternalPerimeter'],
-        [f'Внутренние периметры', 'InternalPerimeter'],
         [f'Заполнение', 'InternalInfill'],
         [f'Сплошное заполнение', 'SolidInfill'],
         [f'Заполнение зазоров', 'GapFill'],
@@ -63,6 +63,7 @@ class Lines:
         [f'Линии поддержки', 'SupportMaterial'],
         [f'Связующие линии поддержки', 'SupportMaterialInterface'],
     ]
+    len = len(lines)
 
     def __init__(self, text, code) -> None:
         self.text = text
@@ -71,16 +72,18 @@ class Lines:
 
 
 class Proporties:
-    logging.info(f'class Proporties(object):')
-    lines: List[Lines]
-    parametrs: List[Pararam]
+    logging.info(f'class Proporties:')
+    lines:  List[Union[Lines, Pararam]]
+    parametrs: List[Union[Lines, Pararam]]
 
     def __init__(self) -> None:
         logging.info(f'   def __init__({self}): [Proporties]')
         self.lines = []
         self.parametrs = []
         self.lines = self.set_value(Lines._lines)
+        logging.debug(f'   {self.lines = }')
         self.parametrs = self.set_value(Pararam._params)
+        logging.debug(f'   {self.parametrs = }')
 
     def error(self, n=None) -> None:
         _error = f'фигню вводишь'
@@ -89,46 +92,54 @@ class Proporties:
 
     def vvod(self, txt: str, bad=None, n=None,
              wtf: Union[str, int, None] = None) -> Union[int, str]:
-        logging.debug(f'start vvod({txt=}, {bad=}, {n=}, {wtf=}')
+        logging.debug(f'                  start vvod({txt=}, {bad=}, {n=}, {wtf=}')
         wtf = input(txt)
-        logging.debug(f'*{wtf =} ')
-        logging.debug(f'{txt = }')
-        logging.debug(f'{bad = }')
-        logging.debug(f'{n = }')
+        logging.debug(f'                     *{wtf =} ')
+        logging.debug(f'                     {txt = }')
+        logging.debug(f'                     {bad = }')
+        logging.debug(f'                     {n = }')
         if wtf == '' and n != None:
-            logging.debug("if n!=None and wtf==''")
+            logging.debug("                        if n!=None and wtf==''")
             return ''
         if bad != None:
             self.error(3)
-            logging.debug('bad!=None:')
+            logging.debug('                        bad!=None:')
             bad = bad
             return self.vvod(txt=txt, wtf=wtf, bad=bad)
         if wtf == '' and bad == None:
             self.error(4)
-            logging.debug("wtf=='' and bad==None:")
+            logging.debug("                        wtf=='' and bad==None:")
             return self.vvod(txt=txt, wtf=wtf, bad=bad)
         try:
-            logging.debug('try:')
+            logging.debug('                        try:')
             wtf = int(wtf)
             return wtf
         except Exception:
-            logging.debug('except')
+            logging.debug('                        except')
             self.error(1)
-            logging.debug(f' return self.vvod({txt=}, {wtf=})')
+            logging.debug(f'                          return self.vvod({txt=}, {wtf=})')
             return self.vvod(txt=txt, wtf=wtf, )
 
-    def set_value(self, lists) -> List[Union['Lines', 'Pararam']]:
-        spisok: List[Union['Lines', 'Pararam']] = []
+    def set_value(self, lists) -> List[Union[Lines, Pararam]]:
+        logging.info(f'         def set_value(self, lists):' )
+        spisok: List[Union[Lines, Pararam]] = []
+        logging.debug(f'            {spisok = }')
+        logging.debug(f'            {lists = }')
         ln = [f'{n}){li.text}' for n, li in enumerate(lists)]
+        logging.debug(f'               {ln = }')
+        logging.debug(f'               while True:')
         while True:
-            list_0 = lists[0]
-            if list_0.__class__ == Pararam:
+            if lists[0].__class__ == Pararam:
                 text_1 = f'параметра: \n   '
+                ln = ln[:Pararam.len]
             else:
                 text_1 = f'типа линий: \n   '
+                ln = ln[:Lines.len]
+            logging.debug(f'                  {lists[0].__class__ = }')
             print(f'Введите номер {text_1}' + '\n   '.join(ln))
             print(f'[Enter] - Далее')
             num = self.vvod('', n=True)
+            logging.debug(f'                  {num = }')
             if num == '':
                 if spisok.__len__() != 0:
                     break
@@ -137,18 +148,26 @@ class Proporties:
                     continue
             if num < lists.__len__():
                 element = lists[num]
+                logging.debug(f'                  {element = } - '
+                              f'list[{num}] = {lists[num]}')
+                logging.debug(f'                  {element.__dict__ = }')
                 selected = f'Выбран "{num}){element.text}'
-                if list_0.__class__ == Pararam:
+                logging.debug(f'                 Выбран "{num}){element.text}')
+                if lists[0].__class__ == Pararam:
                     start = self.vvod(
                         f'{element.text} - Ведите начальное значение: ')
                     stop = self.vvod(
                         f'{element.text} - Ведите конечное значение: ')
-                    element.start = start
-                    element.stop = stop
+                    logging.debug(f'                     {start = }')
+                    logging.debug(f'                     {stop = }')
+                    value: Pararam = Pararam(element.text, element.code, start, stop)
                     print(f'{selected} - {element.start} - {element.stop}".')
+                    logging.debug(f'                     {value = }')
                 else:
                     print(f'{selected}.')
-                spisok.append(element)
+                    value: Lines = Lines(element.text, element.code)
+                    logging.debug(f'                     {value = }')
+                spisok.append(value)
             else:
                 self.error(2)
                 continue
@@ -156,9 +175,9 @@ class Proporties:
 
 
 class Diapasons:
-    logging.info(f'class Diapasons(object)')
+    logging.info(f'class Diapasons:')
     layers: Layer
-    proporties: 'Proporties'
+    proporties: Proporties
 
     def __init__(self) -> None:
         logging.info(f'   def __init__({self}) [Diapasons]')
@@ -173,7 +192,7 @@ class Diapasons:
         print(f'{n}){_error}')
         logging.error(f'{n}{_error}')
 
-    def input_layers(self) -> 'Layer':
+    def input_layers(self) -> Layer:
         logging.info(f'   input_layers(self): [Diapasons]')
         print(f'Введите цифрами через тире диапазон слоев, например:\n'
               f'1-20[Enter]')
@@ -213,9 +232,9 @@ class Diapasons:
 
 
 class Model:
-    logging.info(f'class Model(object)')
+    logging.info(f'class Model:')
     macros: List[str] = []
-    diapasons: List['Diapasons']
+    diapasons: List[Diapasons]
 
     def __init__(self) -> None:
         [Lines(li[0], li[1]) for li in Lines.lines]
@@ -294,8 +313,8 @@ class Model:
                 logging.debug(f'   {t_lines = }')
                 t_line: str = 'or'.join(t_lines)
                 logging.debug(f'   {t_line = }')
-                Model.macros.append(f'   {{{t_line}}}')
-                logging.debug(f'   if    {{{t_line}}}')
+                Model.macros.append(f'   {{ if {t_line}}}')
+                logging.debug(f'      {{ if {t_line}}}')
                 logging.debug(f'                  '
                               f'for parametr in {parametrs=}:)')
                 for parametr in parametrs:
@@ -360,8 +379,8 @@ class Model:
 
 
 model = Model()
-model.info()
 model.logs()
 model.gradient()
 model.macros_print()
+model.info()
 model.bufer()
