@@ -56,9 +56,12 @@ class Lines:
     lines: List[List[str]] = [
         [f'Периметры', 'Perimeter'],
         [f'Внешние периметры', 'ExternalPerimeter'],
+        [f'Свисающие периметры', 'OverhangPerimeter'],
         [f'Заполнение', 'InternalInfill'],
         [f'Сплошное заполнение', 'SolidInfill'],
         [f'Заполнение зазоров', 'GapFill'],
+        [f'Верхнее сплошное заполнение', 'TopSolidInfill'],
+        [f'Внутреннее заполнение моста', 'BridgeInfill'],
         [f'Тонкие линии', 'InternalInfill'],
         [f'Линии поддержки', 'SupportMaterial'],
         [f'Связующие линии поддержки', 'SupportMaterialInterface'],
